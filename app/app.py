@@ -5,6 +5,7 @@ from flask import Flask
 from neomodel import config
 
 load_dotenv()
+config.DATABASE_URL = environ.get("NEO4J_BOLT_URL")
 
 app = Flask(__name__)
 
@@ -15,7 +16,5 @@ def hello_world():
 
 
 if __name__ == "__main__":
-    config.DATABASE_URL = environ.get("NEO4J_BOLT_URL")
-
     isDebugTurnedOn = bool(environ.get("DEBUG", False))
     app.run(debug=isDebugTurnedOn)
