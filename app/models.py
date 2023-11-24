@@ -25,7 +25,6 @@ class Employee(StructuredNode):
     age = IntegerProperty(required=True)
 
     works_in = RelationshipTo("Department", "WORKS_IN", model=WorksIn, cardinality=One)  # type: ignore
-
     manages = RelationshipTo("Employee", "MANAGES", model=Manages)
 
 
