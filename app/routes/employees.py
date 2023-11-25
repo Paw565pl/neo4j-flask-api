@@ -35,34 +35,20 @@ async def get_employees():
 
 
 async def create_employee():
-    data = request.get_json()
+    body = request.get_json()
 
     try:
-        required_fields = [
-            "first_name",
-            "last_name",
-            "age",
-            "department_name",
-            "position",
-            "salary",
-        ]
-        properties = {}
-
-        for field in required_fields:
-            property = data.get(field)
-            if not property:
-                raise ValueError(f"property {field} is required")
-            properties[field] = property
+        properties = await _validate_request_body(body)
 
         with db.transaction:
             department = Department.nodes.get(name=properties["department_name"])
-            newEmployee = Employee.create(
-                {
-                    "first_name": properties["first_name"],
-                    "last_name": properties["last_name"],
-                    "age": properties["age"],
-                }
-            )[0]
+
+            newEmployee = Employee(
+                first_name=properties["first_name"],
+                last_name=properties["last_name"],
+                age=properties["age"],
+            ).save()
+
             newEmployee.works_in.connect(  # type: ignore
                 department,
                 {"position": properties["position"], "salary": properties["salary"]},
@@ -72,3 +58,57 @@ async def create_employee():
 
     except Exception as e:
         return jsonify({"error_type": type(e).__name__, "message": str(e)}), 400
+
+
+async def update_employee(uuid):
+    body = request.get_json()
+    # TODO: dodac uuid do cypher query
+    try:
+        properties = await _validate_request_body(body)
+
+        with db.transaction:
+            employee = Employee.nodes.get(uuid=uuid)
+            employee.first_name = properties["first_name"]
+            employee.last_name = properties["last_name"]
+            employee.age = properties["age"]
+            employee.save()
+
+            # employee.works_in.replace(
+            #     department,
+            #     {"position": properties["position"], "salary": properties["salary"]},
+            # )
+
+            oldDepartment = employee.works_in.get()
+            rel = employee.works_in.relationship(oldDepartment)
+
+            rel.position = properties["position"]
+            rel.salary = properties["salary"]
+            rel.save()
+
+            newDepartment = Department.nodes.get(name=properties["department_name"])
+            employee.works_in.reconnect(oldDepartment, newDepartment)
+
+        return jsonify(employee.get_json())
+
+    except Exception as e:
+        return jsonify({"error_type": type(e).__name__, "message": str(e)}), 400
+
+
+async def _validate_request_body(body):
+    required_fields = [
+        "first_name",
+        "last_name",
+        "age",
+        "department_name",
+        "position",
+        "salary",
+    ]
+    properties = {}
+
+    for field in required_fields:
+        property = body.get(field)
+        if not property:
+            raise ValueError(f"property {field} is required")
+        properties[field] = property
+
+    return properties
