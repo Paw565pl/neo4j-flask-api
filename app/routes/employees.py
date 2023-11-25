@@ -1,5 +1,6 @@
 from flask import jsonify, request
-from models import Employee
+from models import Department, Employee
+from neomodel import db
 
 
 async def get_employees():
@@ -30,4 +31,44 @@ async def get_employees():
 
         return jsonify(data)
     except Exception as e:
-        return jsonify({"message": str(e)}), 400
+        return jsonify({"error_type": type(e).__name__, "message": str(e)}), 400
+
+
+async def create_employee():
+    data = request.get_json()
+
+    try:
+        required_fields = [
+            "first_name",
+            "last_name",
+            "age",
+            "department_name",
+            "position",
+            "salary",
+        ]
+        properties = {}
+
+        for field in required_fields:
+            property = data.get(field)
+            if not property:
+                raise ValueError(f"property {field} is required")
+            properties[field] = property
+
+        with db.transaction:
+            department = Department.nodes.get(name=properties["department_name"])
+            newEmployee = Employee.create(
+                {
+                    "first_name": properties["first_name"],
+                    "last_name": properties["last_name"],
+                    "age": properties["age"],
+                }
+            )[0]
+            newEmployee.works_in.connect(  # type: ignore
+                department,
+                {"position": properties["position"], "salary": properties["salary"]},
+            )
+
+        return jsonify(newEmployee.get_json())
+
+    except Exception as e:
+        return jsonify({"error_type": type(e).__name__, "message": str(e)}), 400
