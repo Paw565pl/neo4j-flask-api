@@ -111,6 +111,21 @@ async def delete_employee(uuid):
         return jsonify({"error_type": type(e).__name__, "message": str(e)}), 400
 
 
+async def get_employee_subordinates(uuid):
+    try:
+        results, _ = db.cypher_query(
+            "MATCH (n:Employee {uuid: $uuid})-[:MANAGES]->(m:Employee) RETURN m",
+            params={"uuid": uuid},
+            resolve_objects=True,
+        )
+
+        response = [employee[0].get_json() for employee in results]
+        return jsonify(response)
+
+    except Exception as e:
+        return jsonify({"error_type": type(e).__name__, "message": str(e)}), 400
+
+
 async def _validate_request_body(body):
     required_fields = [
         "first_name",

@@ -8,6 +8,7 @@ from routes.employees import (
     delete_employee,
     get_employees,
     update_employee,
+    get_employee_subordinates,
 )
 from routes.seed import seed_db
 
@@ -21,6 +22,11 @@ app.add_url_rule("/employees", view_func=get_employees, methods=["GET"])
 app.add_url_rule("/employees", view_func=create_employee, methods=["POST"])
 app.add_url_rule("/employees/<uuid>", view_func=update_employee, methods=["PUT"])
 app.add_url_rule("/employees/<uuid>", view_func=delete_employee, methods=["DELETE"])
+app.add_url_rule(
+    "/employees/<uuid>/subordinates",
+    view_func=get_employee_subordinates,
+    methods=["GET"],
+)
 
 if __name__ == "__main__":
     isDebugTurnedOn = bool(environ.get("DEBUG", False))
