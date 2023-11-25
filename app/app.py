@@ -5,8 +5,8 @@ from flask import Flask
 from neomodel import config
 from routes.employees import (
     create_employee,
+    delete_employee,
     get_employees,
-    remove_employee,
     update_employee,
 )
 from routes.seed import seed_db
@@ -20,7 +20,7 @@ app.add_url_rule("/seed", view_func=seed_db, methods=["POST"])
 app.add_url_rule("/employees", view_func=get_employees, methods=["GET"])
 app.add_url_rule("/employees", view_func=create_employee, methods=["POST"])
 app.add_url_rule("/employees/<uuid>", view_func=update_employee, methods=["PUT"])
-app.add_url_rule("/employees/<uuid>", view_func=remove_employee, methods=["DELETE"])
+app.add_url_rule("/employees/<uuid>", view_func=delete_employee, methods=["DELETE"])
 
 if __name__ == "__main__":
     isDebugTurnedOn = bool(environ.get("DEBUG", False))

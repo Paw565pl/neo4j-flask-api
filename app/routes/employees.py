@@ -90,9 +90,21 @@ async def update_employee(uuid):
         return jsonify({"error_type": type(e).__name__, "message": str(e)}), 400
 
 
-async def remove_employee(uuid):
+async def delete_employee(uuid):
     try:
-        Employee.nodes.get(uuid=uuid).delete()
+        employee = Employee.nodes.get(uuid=uuid)
+
+        if len(employee.manages) != 0:
+            return (
+                jsonify(
+                    {
+                        "message": "this employee can not be deleted, because he is associated with one or more subordinates"
+                    }
+                ),
+                405,
+            )
+
+        employee.delete()
         return jsonify({"message": "employee removed successfully"})
 
     except Exception as e:

@@ -30,10 +30,10 @@ class Employee(StructuredNode):
     manages = RelationshipTo("Employee", "MANAGES", model=Manages)
 
     def get_json(self):
-        department_name = self.works_in.get().name  # type: ignore
-        works_in = self.works_in.relationship(self.works_in.get()).__properties__  # type: ignore
+        department = self.works_in.get()  # type: ignore
+        works_in = self.works_in.relationship(department).__properties__  # type: ignore
 
-        works_in["department_name"] = department_name
+        works_in["department_name"] = department.name
         works_in.pop("element_id_property")
 
         json = {
