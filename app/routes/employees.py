@@ -42,13 +42,13 @@ async def create_employee():
         properties = await _validate_request_body(body)
 
         with db.transaction:
-            department = Department.nodes.get(name=properties["department_name"])
+            newEmployee = Employee()
+            newEmployee.first_name = properties["first_name"]
+            newEmployee.last_name = properties["last_name"]
+            newEmployee.age = properties["age"]
+            newEmployee.save()
 
-            newEmployee = Employee(
-                first_name=properties["first_name"],
-                last_name=properties["last_name"],
-                age=properties["age"],
-            ).save()
+            department = Department.nodes.get(name=properties["department_name"])
 
             newEmployee.works_in.connect(  # type: ignore
                 department,
