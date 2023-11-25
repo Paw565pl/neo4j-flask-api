@@ -30,6 +30,7 @@ async def get_employees():
         data = [employee.get_json() for employee in filtered_employees_by_position]
 
         return jsonify(data)
+
     except Exception as e:
         return jsonify({"error_type": type(e).__name__, "message": str(e)}), 400
 
@@ -54,7 +55,7 @@ async def create_employee():
                 {"position": properties["position"], "salary": properties["salary"]},
             )
 
-        return jsonify(newEmployee.get_json())
+        return jsonify(newEmployee.get_json()), 201
 
     except Exception as e:
         return jsonify({"error_type": type(e).__name__, "message": str(e)}), 400
@@ -62,7 +63,7 @@ async def create_employee():
 
 async def update_employee(uuid):
     body = request.get_json()
-    # TODO: dodac uuid do cypher query
+
     try:
         properties = await _validate_request_body(body)
 
@@ -72,11 +73,6 @@ async def update_employee(uuid):
             employee.last_name = properties["last_name"]
             employee.age = properties["age"]
             employee.save()
-
-            # employee.works_in.replace(
-            #     department,
-            #     {"position": properties["position"], "salary": properties["salary"]},
-            # )
 
             oldDepartment = employee.works_in.get()
             rel = employee.works_in.relationship(oldDepartment)
@@ -89,6 +85,15 @@ async def update_employee(uuid):
             employee.works_in.reconnect(oldDepartment, newDepartment)
 
         return jsonify(employee.get_json())
+
+    except Exception as e:
+        return jsonify({"error_type": type(e).__name__, "message": str(e)}), 400
+
+
+async def remove_employee(uuid):
+    try:
+        Employee.nodes.get(uuid=uuid).delete()
+        return jsonify({"message": "employee removed successfully"})
 
     except Exception as e:
         return jsonify({"error_type": type(e).__name__, "message": str(e)}), 400
