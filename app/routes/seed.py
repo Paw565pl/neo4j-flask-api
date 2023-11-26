@@ -1,8 +1,11 @@
 import aiofiles
-from flask import jsonify, request
+from flask import jsonify, request, Blueprint
 from neomodel import clear_neo4j_database, db
 
+seed_blueprint = Blueprint("seed", __name__)
 
+
+@seed_blueprint.post("/")
 async def seed_db():
     data = request.get_json()
     seed_agree = data.get("seed")

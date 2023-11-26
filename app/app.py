@@ -4,38 +4,18 @@ from dotenv import load_dotenv
 from flask import Flask
 from neomodel import config
 
-from routes.department import get_departments, get_department, get_department_employees
-from routes.employees import (
-    create_employee,
-    delete_employee,
-    get_employees,
-    update_employee,
-    get_employee_subordinates,
-)
-from routes.seed import seed_db
+from routes.departments import departments_blue_print
+from routes.employees import employees_blue_print
+from routes.seed import seed_blueprint
 
 load_dotenv()
 config.DATABASE_URL = environ.get("NEO4J_BOLT_URL")
 
 app = Flask(__name__)
 
-app.add_url_rule("/seed", view_func=seed_db, methods=["POST"])
-
-app.add_url_rule("/employees", view_func=get_employees, methods=["GET"])
-app.add_url_rule("/employees", view_func=create_employee, methods=["POST"])
-app.add_url_rule("/employees/<uuid>", view_func=update_employee, methods=["PUT"])
-app.add_url_rule("/employees/<uuid>", view_func=delete_employee, methods=["DELETE"])
-app.add_url_rule(
-    "/employees/<uuid>/subordinates",
-    view_func=get_employee_subordinates,
-    methods=["GET"],
-)
-
-app.add_url_rule("/departments", view_func=get_departments, methods=["GET"])
-app.add_url_rule("/departments/<uuid>", view_func=get_department, methods=["GET"])
-app.add_url_rule(
-    "/departments/<uuid>/employees", view_func=get_department_employees, methods=["GET"]
-)
+app.register_blueprint(seed_blueprint, url_prefix="/seed")
+app.register_blueprint(employees_blue_print, url_prefix="/employees")
+app.register_blueprint(departments_blue_print, url_prefix="/departments")
 
 if __name__ == "__main__":
     isDebugTurnedOn = True if environ.get("DEBUG") == "True" else False

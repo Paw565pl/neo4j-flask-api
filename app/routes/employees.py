@@ -1,8 +1,11 @@
-from flask import jsonify, request
+from flask import jsonify, request, Blueprint
 from models import Department, Employee
 from neomodel import db
 
+employees_blue_print = Blueprint("employees", __name__)
 
+
+@employees_blue_print.get("/")
 async def get_employees():
     first_name = request.args.get("first_name", "")
     last_name = request.args.get("last_name", "")
@@ -16,8 +19,9 @@ async def get_employees():
         employees_filtered_by_position = [
             employee
             for employee in employees
-            if employee.works_in.relationship(employee.works_in.get()).position.lower()
-            == position
+            if employee.works_in.relationship(employee.works_in.get())
+            .position.lower()
+            .startswith(position)
         ]
         data = [employee.get_json() for employee in employees_filtered_by_position]
 
@@ -27,6 +31,7 @@ async def get_employees():
         return jsonify({"error_type": type(e).__name__, "message": str(e)}), 400
 
 
+@employees_blue_print.post("/")
 async def create_employee():
     body = request.get_json()
 
@@ -53,6 +58,7 @@ async def create_employee():
         return jsonify({"error_type": type(e).__name__, "message": str(e)}), 400
 
 
+@employees_blue_print.put("/<uuid>")
 async def update_employee(uuid):
     body = request.get_json()
 
@@ -82,6 +88,7 @@ async def update_employee(uuid):
         return jsonify({"error_type": type(e).__name__, "message": str(e)}), 400
 
 
+@employees_blue_print.delete("/<uuid>")
 async def delete_employee(uuid):
     try:
         employee = Employee.nodes.get(uuid=uuid)
@@ -90,7 +97,7 @@ async def delete_employee(uuid):
             return (
                 jsonify(
                     {
-                        "message": "this employee can not be deleted, because he is associated with one or more subordinates"
+                        "message": "this employee can not be deleted, because he is manager and is associated with one or more subordinates"
                     }
                 ),
                 405,
@@ -103,6 +110,7 @@ async def delete_employee(uuid):
         return jsonify({"error_type": type(e).__name__, "message": str(e)}), 400
 
 
+@employees_blue_print.get("/<uuid>/subordinates")
 async def get_employee_subordinates(uuid):
     try:
         manager = Employee.nodes.get(uuid=uuid)
