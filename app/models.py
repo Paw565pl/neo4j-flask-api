@@ -53,5 +53,17 @@ class Department(StructuredNode):
     works_in = RelationshipFrom("Employee", "WORKS_IN", model=WorksIn)
 
     def get_json(self):
-        json = {"uuid": self.uuid, "name": self.name}
+        employees = self.works_in.all()  # type: ignore
+        managers = [
+            {k: v for k, v in employee.get_json().items() if k != "works_in"}
+            for employee in employees
+            if employee.manages
+        ]
+
+        json = {
+            "uuid": self.uuid,
+            "name": self.name,
+            "employees_count": len(employees),
+            "managers": managers,
+        }
         return json
