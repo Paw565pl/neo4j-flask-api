@@ -1,7 +1,6 @@
 from flask import jsonify, request
+from models import Department, Employee
 from neomodel import db
-
-from ..models import Department, Employee
 
 
 async def get_employees():

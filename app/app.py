@@ -3,6 +3,7 @@ from os import environ
 from dotenv import load_dotenv
 from flask import Flask
 from neomodel import config
+
 from routes.employees import (
     create_employee,
     delete_employee,
