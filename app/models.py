@@ -51,3 +51,7 @@ class Department(StructuredNode):
     name = StringProperty(required=True, unique_index=True)
 
     works_in = RelationshipFrom("Employee", "WORKS_IN", model=WorksIn, cardinality=One)
+
+    def get_json(self):
+        json = {"uuid": self.uuid, "name": self.name}
+        return json
