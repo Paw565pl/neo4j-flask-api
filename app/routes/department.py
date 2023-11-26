@@ -25,3 +25,14 @@ async def get_department(uuid):
 
     except Exception as e:
         return jsonify({"error_type": type(e).__name__, "message": str(e)}), 400
+
+
+async def get_department_employees(uuid):
+    try:
+        department_employees = Department.nodes.get(uuid=uuid).works_in.all()
+        data = [employee.get_json() for employee in department_employees]
+
+        return jsonify(data)
+
+    except Exception as e:
+        return jsonify({"error_type": type(e).__name__, "message": str(e)}), 400
