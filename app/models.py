@@ -26,7 +26,7 @@ class Employee(StructuredNode):
     last_name = StringProperty(required=True, unique_index=True)
     age = IntegerProperty(required=True)
 
-    works_in = RelationshipTo("Department", "WORKS_IN", model=WorksIn, cardinality=One)  # type: ignore
+    works_in = RelationshipTo("Department", "WORKS_IN", model=WorksIn, cardinality=One)
     manages = RelationshipTo("Employee", "MANAGES", model=Manages)
 
     def get_json(self):
@@ -50,4 +50,4 @@ class Department(StructuredNode):
     uuid = UniqueIdProperty()
     name = StringProperty(required=True, unique_index=True)
 
-    works_in = RelationshipFrom("Employee", "WORKS_IN", model=WorksIn, cardinality=One)  # type: ignore
+    works_in = RelationshipFrom("Employee", "WORKS_IN", model=WorksIn, cardinality=One)

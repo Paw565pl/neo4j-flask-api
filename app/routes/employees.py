@@ -1,18 +1,19 @@
 from flask import jsonify, request
-from models import Department, Employee
 from neomodel import db
+
+from ..models import Department, Employee
 
 
 async def get_employees():
     first_name = request.args.get("first_name", "")
     last_name = request.args.get("last_name", "")
     position = request.args.get("position", "")
-    orderBy = request.args.get("order_by", None)
+    order_by = request.args.get("order_by", None)
 
     try:
         employees = Employee.nodes.filter(
             first_name__istartswith=first_name, last_name__istartswith=last_name
-        ).order_by(orderBy)
+        ).order_by(order_by)
 
         relationships = [
             employee.works_in.relationship(employee.works_in.get())
@@ -42,20 +43,20 @@ async def create_employee():
         properties = await _validate_request_body(body)
 
         with db.transaction:
-            newEmployee = Employee()
-            newEmployee.first_name = properties["first_name"]
-            newEmployee.last_name = properties["last_name"]
-            newEmployee.age = properties["age"]
-            newEmployee.save()
+            new_employee = Employee()
+            new_employee.first_name = properties["first_name"]
+            new_employee.last_name = properties["last_name"]
+            new_employee.age = properties["age"]
+            new_employee.save()
 
             department = Department.nodes.get(name=properties["department_name"])
 
-            newEmployee.works_in.connect(  # type: ignore
+            new_employee.works_in.connect(
                 department,
                 {"position": properties["position"], "salary": properties["salary"]},
             )
 
-        return jsonify(newEmployee.get_json()), 201
+        return jsonify(new_employee.get_json()), 201
 
     except Exception as e:
         return jsonify({"error_type": type(e).__name__, "message": str(e)}), 400
@@ -74,15 +75,15 @@ async def update_employee(uuid):
             employee.age = properties["age"]
             employee.save()
 
-            oldDepartment = employee.works_in.get()
-            rel = employee.works_in.relationship(oldDepartment)
+            old_department = employee.works_in.get()
+            rel = employee.works_in.relationship(old_department)
 
             rel.position = properties["position"]
             rel.salary = properties["salary"]
             rel.save()
 
-            newDepartment = Department.nodes.get(name=properties["department_name"])
-            employee.works_in.reconnect(oldDepartment, newDepartment)
+            new_department = Department.nodes.get(name=properties["department_name"])
+            employee.works_in.reconnect(old_department, new_department)
 
         return jsonify(employee.get_json())
 
@@ -135,12 +136,12 @@ async def _validate_request_body(body):
         "position",
         "salary",
     ]
-    properties = {}
+    data = {}
 
     for field in required_fields:
-        property = body.get(field)
-        if not property:
+        param = body.get(field)
+        if not param:
             raise ValueError(f"property {field} is required")
-        properties[field] = property
+        data[field] = param
 
-    return properties
+    return data
