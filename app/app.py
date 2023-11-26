@@ -38,5 +38,5 @@ app.add_url_rule(
 )
 
 if __name__ == "__main__":
-    isDebugTurnedOn = bool(environ.get("DEBUG", False))
+    isDebugTurnedOn = True if environ.get("DEBUG") == "True" else False
     app.run(debug=isDebugTurnedOn)
