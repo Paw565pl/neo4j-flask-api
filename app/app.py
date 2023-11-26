@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from flask import Flask
 from neomodel import config
 
-from routes.department import get_departments
+from routes.department import get_departments, get_department
 from routes.employees import (
     create_employee,
     delete_employee,
@@ -32,6 +32,7 @@ app.add_url_rule(
 )
 
 app.add_url_rule("/departments", view_func=get_departments, methods=["GET"])
+app.add_url_rule("/departments/<uuid>", view_func=get_department, methods=["GET"])
 
 if __name__ == "__main__":
     isDebugTurnedOn = bool(environ.get("DEBUG", False))

@@ -50,7 +50,7 @@ class Department(StructuredNode):
     uuid = UniqueIdProperty()
     name = StringProperty(required=True, unique_index=True)
 
-    works_in = RelationshipFrom("Employee", "WORKS_IN", model=WorksIn, cardinality=One)
+    works_in = RelationshipFrom("Employee", "WORKS_IN", model=WorksIn)
 
     def get_json(self):
         json = {"uuid": self.uuid, "name": self.name}
