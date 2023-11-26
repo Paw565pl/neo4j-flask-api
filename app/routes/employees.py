@@ -7,7 +7,7 @@ async def get_employees():
     first_name = request.args.get("first_name", "")
     last_name = request.args.get("last_name", "")
     position = request.args.get("position", "")
-    order_by = request.args.get("order_by", None)
+    order_by = request.args.get("order_by")
 
     try:
         employees = Employee.nodes.filter(

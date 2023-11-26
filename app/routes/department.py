@@ -4,7 +4,7 @@ from models import Department
 
 async def get_departments():
     name = request.args.get("name", "")
-    order_by = request.args.get("order_by", None)
+    order_by = request.args.get("order_by")
 
     try:
         departments = Department.nodes.filter(name__istartswith=name).order_by(order_by)
