@@ -118,11 +118,15 @@ async def _validate_request_body(body):
         "salary",
     ]
     data = {}
+    errors = []
 
     for field in required_fields:
         param = body.get(field)
         if not param:
-            raise ValueError(f"property {field} is required")
-        data[field] = param
+            errors.append(f"{field} is required")
+        else:
+            data[field] = param
 
+    if len(errors) != 0:
+        raise ValueError(", ".join(errors))
     return data
