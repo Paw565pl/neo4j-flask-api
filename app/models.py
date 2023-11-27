@@ -31,17 +31,14 @@ class Employee(StructuredNode):
 
     def get_json(self):
         department = self.works_in.get()  # type: ignore
-        works_in = self.works_in.relationship(department).__properties__  # type: ignore
-
-        works_in["department_name"] = department.name
-        works_in.pop("element_id_property")
+        works_in = self.works_in.relationship(department)  # type: ignore
 
         json = {
             "uuid": self.uuid,
             "first_name": self.first_name,
             "last_name": self.last_name,
             "age": self.age,
-            "works_in": works_in,
+            "works_in": {"position": works_in.position, "salary": works_in.salary},
         }
         return json
 
