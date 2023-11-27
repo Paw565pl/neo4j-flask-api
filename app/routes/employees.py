@@ -45,7 +45,7 @@ async def create_employee():
 
         department = Department.nodes.get(name=properties["department_name"])
 
-        new_employee.works_in.connect(
+        new_employee.works_in.connect(  # type: ignore
             department,
             {"position": properties["position"], "salary": properties["salary"]},
         )

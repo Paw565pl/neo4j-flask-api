@@ -1,5 +1,6 @@
 from os import environ
 
+from asgiref.wsgi import WsgiToAsgi
 from dotenv import load_dotenv
 from flask import Flask
 from neomodel import config
@@ -17,3 +18,5 @@ app.register_blueprint(employees_blueprint, url_prefix="/employees")
 app.register_blueprint(departments_blueprint, url_prefix="/departments")
 
 app.cli.add_command(seed_db)
+
+asgi_app = WsgiToAsgi(app)
