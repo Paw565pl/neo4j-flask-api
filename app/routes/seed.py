@@ -1,7 +1,8 @@
 import aiofiles
 from flask import jsonify, request, Blueprint
 from neomodel import clear_neo4j_database, db
-from utils.handle_exception import handle_exception
+
+from app.utils.handle_exception import handle_exception
 
 seed_blueprint = Blueprint("seed", __name__)
 

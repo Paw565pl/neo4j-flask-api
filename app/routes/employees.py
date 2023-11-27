@@ -1,7 +1,8 @@
 from flask import jsonify, request, Blueprint
-from models import Department, Employee
 from neomodel import db
-from utils.handle_exception import handle_exception
+
+from app.models import Department, Employee
+from app.utils.handle_exception import handle_exception
 
 employees_blue_print = Blueprint("employees", __name__)
 

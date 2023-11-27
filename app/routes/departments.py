@@ -1,9 +1,7 @@
 from flask import jsonify, request, Blueprint
-from models import Department
 
-from utils.handle_exception import handle_exception
-
-# from utils.handle_exception import handle_exception
+from app.models import Department
+from app.utils.handle_exception import handle_exception
 
 departments_blue_print = Blueprint("department", __name__)
 
