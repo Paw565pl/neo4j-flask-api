@@ -4,10 +4,10 @@ from neomodel import db
 from app.models import Department, Employee
 from app.utils.handle_exception import handle_exception
 
-employees_blue_print = Blueprint("employees", __name__)
+employees_blueprint = Blueprint("employees", __name__)
 
 
-@employees_blue_print.get("/")
+@employees_blueprint.get("/")
 @handle_exception
 async def get_employees():
     first_name = request.args.get("first_name", "")
@@ -30,11 +30,10 @@ async def get_employees():
     return jsonify(data)
 
 
-@employees_blue_print.post("/")
+@employees_blueprint.post("/")
 @handle_exception
 async def create_employee():
     body = request.get_json()
-
     properties = await _validate_request_body(body)
 
     with db.transaction:
@@ -54,11 +53,10 @@ async def create_employee():
     return jsonify(new_employee.get_json()), 201
 
 
-@employees_blue_print.put("/<uuid>")
+@employees_blueprint.put("/<uuid>")
 @handle_exception
 async def update_employee(uuid):
     body = request.get_json()
-
     properties = await _validate_request_body(body)
 
     with db.transaction:
@@ -81,7 +79,7 @@ async def update_employee(uuid):
     return jsonify(employee.get_json())
 
 
-@employees_blue_print.delete("/<uuid>")
+@employees_blueprint.delete("/<uuid>")
 @handle_exception
 async def delete_employee(uuid):
     employee = Employee.nodes.get(uuid=uuid)
@@ -100,7 +98,7 @@ async def delete_employee(uuid):
     return jsonify({"message": "employee removed successfully"})
 
 
-@employees_blue_print.get("/<uuid>/subordinates")
+@employees_blueprint.get("/<uuid>/subordinates")
 @handle_exception
 async def get_employee_subordinates(uuid):
     manager = Employee.nodes.get(uuid=uuid)

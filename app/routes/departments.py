@@ -3,10 +3,10 @@ from flask import jsonify, request, Blueprint
 from app.models import Department
 from app.utils.handle_exception import handle_exception
 
-departments_blue_print = Blueprint("department", __name__)
+departments_blueprint = Blueprint("department", __name__)
 
 
-@departments_blue_print.get("/")
+@departments_blueprint.get("/")
 @handle_exception
 async def get_departments():
     name = request.args.get("name", "")
@@ -18,7 +18,7 @@ async def get_departments():
     return jsonify(data)
 
 
-@departments_blue_print.get("/<uuid>")
+@departments_blueprint.get("/<uuid>")
 @handle_exception
 async def get_department(uuid):
     department = Department.nodes.get(uuid=uuid)
@@ -27,7 +27,7 @@ async def get_department(uuid):
     return jsonify(data)
 
 
-@departments_blue_print.get("/<uuid>/employees")
+@departments_blueprint.get("/<uuid>/employees")
 @handle_exception
 async def get_department_employees(uuid):
     department_employees = Department.nodes.get(uuid=uuid).works_in.all()
