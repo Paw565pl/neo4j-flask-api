@@ -38,7 +38,11 @@ class Employee(StructuredNode):
             "first_name": self.first_name,
             "last_name": self.last_name,
             "age": self.age,
-            "works_in": {"position": works_in.position, "salary": works_in.salary},
+            "works_in": {
+                "department_name": department.name,
+                "position": works_in.position,
+                "salary": works_in.salary,
+            },
         }
         return json
 
