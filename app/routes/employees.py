@@ -1,126 +1,112 @@
 from flask import jsonify, request, Blueprint
 from models import Department, Employee
 from neomodel import db
+from utils.handle_exception import handle_exception
 
 employees_blue_print = Blueprint("employees", __name__)
 
 
 @employees_blue_print.get("/")
+@handle_exception
 async def get_employees():
     first_name = request.args.get("first_name", "")
     last_name = request.args.get("last_name", "")
     position = request.args.get("position", "").lower()
     order_by = request.args.get("order_by")
 
-    try:
-        employees = Employee.nodes.filter(
-            first_name__istartswith=first_name, last_name__istartswith=last_name
-        ).order_by(order_by)
-        employees_filtered_by_position = [
-            employee
-            for employee in employees
-            if employee.works_in.relationship(employee.works_in.get())
-            .position.lower()
-            .startswith(position)
-        ]
-        data = [employee.get_json() for employee in employees_filtered_by_position]
+    employees = Employee.nodes.filter(
+        first_name__istartswith=first_name, last_name__istartswith=last_name
+    ).order_by(order_by)
+    employees_filtered_by_position = [
+        employee
+        for employee in employees
+        if employee.works_in.relationship(employee.works_in.get())
+        .position.lower()
+        .startswith(position)
+    ]
+    data = [employee.get_json() for employee in employees_filtered_by_position]
 
-        return jsonify(data)
-
-    except Exception as e:
-        return jsonify({"error_type": type(e).__name__, "message": str(e)}), 400
+    return jsonify(data)
 
 
 @employees_blue_print.post("/")
+@handle_exception
 async def create_employee():
     body = request.get_json()
 
-    try:
-        properties = await _validate_request_body(body)
+    properties = await _validate_request_body(body)
 
-        with db.transaction:
-            new_employee = Employee()
-            new_employee.first_name = properties["first_name"]
-            new_employee.last_name = properties["last_name"]
-            new_employee.age = properties["age"]
-            new_employee.save()
+    with db.transaction:
+        new_employee = Employee()
+        new_employee.first_name = properties["first_name"]
+        new_employee.last_name = properties["last_name"]
+        new_employee.age = properties["age"]
+        new_employee.save()
 
-            department = Department.nodes.get(name=properties["department_name"])
+        department = Department.nodes.get(name=properties["department_name"])
 
-            new_employee.works_in.connect(
-                department,
-                {"position": properties["position"], "salary": properties["salary"]},
-            )
+        new_employee.works_in.connect(
+            department,
+            {"position": properties["position"], "salary": properties["salary"]},
+        )
 
-        return jsonify(new_employee.get_json()), 201
-
-    except Exception as e:
-        return jsonify({"error_type": type(e).__name__, "message": str(e)}), 400
+    return jsonify(new_employee.get_json()), 201
 
 
 @employees_blue_print.put("/<uuid>")
+@handle_exception
 async def update_employee(uuid):
     body = request.get_json()
 
-    try:
-        properties = await _validate_request_body(body)
+    properties = await _validate_request_body(body)
 
-        with db.transaction:
-            employee = Employee.nodes.get(uuid=uuid)
-            employee.first_name = properties["first_name"]
-            employee.last_name = properties["last_name"]
-            employee.age = properties["age"]
-            employee.save()
+    with db.transaction:
+        employee = Employee.nodes.get(uuid=uuid)
+        employee.first_name = properties["first_name"]
+        employee.last_name = properties["last_name"]
+        employee.age = properties["age"]
+        employee.save()
 
-            old_department = employee.works_in.get()
-            rel = employee.works_in.relationship(old_department)
+        old_department = employee.works_in.get()
+        rel = employee.works_in.relationship(old_department)
 
-            rel.position = properties["position"]
-            rel.salary = properties["salary"]
-            rel.save()
+        rel.position = properties["position"]
+        rel.salary = properties["salary"]
+        rel.save()
 
-            new_department = Department.nodes.get(name=properties["department_name"])
-            employee.works_in.reconnect(old_department, new_department)
+        new_department = Department.nodes.get(name=properties["department_name"])
+        employee.works_in.reconnect(old_department, new_department)
 
-        return jsonify(employee.get_json())
-
-    except Exception as e:
-        return jsonify({"error_type": type(e).__name__, "message": str(e)}), 400
+    return jsonify(employee.get_json())
 
 
 @employees_blue_print.delete("/<uuid>")
+@handle_exception
 async def delete_employee(uuid):
-    try:
-        employee = Employee.nodes.get(uuid=uuid)
+    employee = Employee.nodes.get(uuid=uuid)
 
-        if len(employee.manages) != 0:
-            return (
-                jsonify(
-                    {
-                        "message": "this employee can not be deleted, because he is manager and is associated with one or more subordinates"
-                    }
-                ),
-                405,
-            )
+    if len(employee.manages) != 0:
+        return (
+            jsonify(
+                {
+                    "message": "this employee can not be deleted, because he is manager and is associated with one or more subordinates"
+                }
+            ),
+            405,
+        )
 
-        employee.delete()
-        return jsonify({"message": "employee removed successfully"})
-
-    except Exception as e:
-        return jsonify({"error_type": type(e).__name__, "message": str(e)}), 400
+    employee.delete()
+    return jsonify({"message": "employee removed successfully"})
 
 
 @employees_blue_print.get("/<uuid>/subordinates")
+@handle_exception
 async def get_employee_subordinates(uuid):
-    try:
-        manager = Employee.nodes.get(uuid=uuid)
-        subordinates = manager.manages.all()
-        data = [subordinate.get_json() for subordinate in subordinates]
+    manager = Employee.nodes.get(uuid=uuid)
+    subordinates = manager.manages.all()
+    data = [subordinate.get_json() for subordinate in subordinates]
 
-        return jsonify(data)
-
-    except Exception as e:
-        return jsonify({"error_type": type(e).__name__, "message": str(e)}), 400
+    return jsonify(data)
 
 
 async def _validate_request_body(body):
