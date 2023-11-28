@@ -35,6 +35,6 @@ flask --app app.app seed_db
 - GET (params: first_name, last_name, position, order_by), POST /employees
 - PUT, DELETE /employees/:uuid
 - GET /employees/:uuid/subordinates
-- GET (params: name, order_by) /department
-- GET /department/:uuid
-- GET /department/:uuid/employees
+- GET (params: name, order_by) /departments
+- GET /departments/:uuid
+- GET /departments/:uuid/employees
