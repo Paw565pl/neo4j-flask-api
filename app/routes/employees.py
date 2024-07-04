@@ -1,5 +1,5 @@
 from flask import jsonify, request, Blueprint
-from neomodel import db
+from neomodel import db, DoesNotExist
 
 from app.models import Department, Employee
 
@@ -40,7 +40,10 @@ async def create_employee():
         new_employee.age = properties["age"]
         new_employee.save()
 
-        department = Department.nodes.get(name=properties["department_name"])
+        try:
+            department = Department.nodes.get(name=properties["department_name"])
+        except DoesNotExist:
+            raise ValueError("department with given name does not exist")
 
         new_employee.works_in.connect(  # type: ignore
             department,
@@ -52,11 +55,12 @@ async def create_employee():
 
 @employees_blueprint.put("/<uuid>")
 async def update_employee(uuid):
+    employee = Employee.nodes.get(uuid=uuid)
+
     body = request.get_json()
     properties = _validate_request_body(body)
 
     with db.transaction:
-        employee = Employee.nodes.get(uuid=uuid)
         employee.first_name = properties["first_name"]
         employee.last_name = properties["last_name"]
         employee.age = properties["age"]
@@ -69,7 +73,11 @@ async def update_employee(uuid):
         rel.salary = properties["salary"]
         rel.save()
 
-        new_department = Department.nodes.get(name=properties["department_name"])
+        try:
+            new_department = Department.nodes.get(name=properties["department_name"])
+        except DoesNotExist:
+            raise ValueError("department with given name does not exist")
+
         employee.works_in.reconnect(old_department, new_department)
 
     return jsonify(employee.get_json())
