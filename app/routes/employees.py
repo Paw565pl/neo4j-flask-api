@@ -94,11 +94,11 @@ async def delete_employee(uuid):
                     "message": "this employee can not be deleted, because he is manager and is associated with one or more subordinates"
                 }
             ),
-            405,
+            409,
         )
 
     employee.delete()
-    return jsonify({"message": "employee removed successfully"})
+    return jsonify({"message": "employee removed successfully"}), 204
 
 
 @employees_blueprint.get("/<uuid>/subordinates")
