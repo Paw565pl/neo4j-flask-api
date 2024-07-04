@@ -21,4 +21,4 @@ USER appuser
 
 EXPOSE 5000
 
-CMD gunicorn -b 0.0.0.0:5000 -k uvicorn.workers.UvicornWorker app.app:asgi_app
+CMD sh -c "neomodel_install_labels app/models.py && gunicorn -b 0.0.0.0:5000 -k uvicorn.workers.UvicornWorker app.app:asgi_app"
