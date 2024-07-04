@@ -1,34 +1,20 @@
-# Live demo
+# Flask REST API with Neo4j
 
-[Hosted on render.com](https://neo4j-flask-api-5isw.onrender.com/employees)
+This is a simple restful api providing CRUD operations for managing Employees and Departments.
 
 ### How to run it locally?
 
-1. Create .env file looking something like that
+It is fairly simple thanks to docker. Simply run this command after **cloning the repository**.
 
-```
-NEO4J_BOLT_URL=bolt://neo4j:neo4j@localhost:7687
-```
-
-2. Install dependencies in your python virtualenv
-
-```
-pip install -r requirements.txt
+```sh
+docker compose up --build
 ```
 
-3. Run the server
+If you want to seed the database with sample data you can also run this command.
 
+```sh
+docker exec neo4j-flask-api-flask-1 flask --app app.app seed_db
 ```
-flask --app app.app run --debug
-```
-
-4. Optionally seed the database
-
-```
-flask --app app.app seed_db
-```
-
-5. You are good to go!
 
 ### List of endpoints
 
