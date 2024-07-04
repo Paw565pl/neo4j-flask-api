@@ -22,8 +22,8 @@ class WorksIn(StructuredRel):
 
 class Employee(StructuredNode):
     uuid = UniqueIdProperty()
-    first_name = StringProperty(required=True, unique_index=True)
-    last_name = StringProperty(required=True, unique_index=True)
+    first_name = StringProperty(required=True)
+    last_name = StringProperty(required=True)
     age = IntegerProperty(required=True)
 
     works_in = RelationshipTo("Department", "WORKS_IN", model=WorksIn, cardinality=One)  # type: ignore
