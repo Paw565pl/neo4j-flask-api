@@ -1,4 +1,4 @@
-from flask import jsonify, request, Blueprint
+from flask import Blueprint, jsonify, request
 
 from app.models import Department
 
@@ -14,6 +14,17 @@ async def get_departments():
     data = [department.get_json() for department in departments]
 
     return jsonify(data)
+
+
+@departments_blueprint.post("/")
+async def create_department():
+    name = request.get_json().get("name")
+
+    new_department = Department()
+    new_department.name = name
+    new_department.save()
+
+    return jsonify(new_department.get_json()), 201
 
 
 @departments_blueprint.get("/<uuid>")
