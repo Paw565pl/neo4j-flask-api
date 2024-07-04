@@ -1,0 +1,20 @@
+services:
+  neo4j:
+    image: neo4j:5-community
+    restart: always
+    environment:
+      - NEO4J_AUTH=none
+    ports:
+      - "7474:7474"
+
+  flask:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - NEO4J_BOLT_URL=bolt://:@neo4j:7687
+    ports:
+      - "5000:5000"
+    depends_on:
+      - neo4j
