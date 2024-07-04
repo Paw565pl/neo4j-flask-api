@@ -4,8 +4,6 @@ services:
     restart: always
     environment:
       - NEO4J_AUTH=none
-    ports:
-      - "7474:7474"
 
   flask:
     build:
