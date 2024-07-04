@@ -33,7 +33,7 @@ flask --app app.app seed_db
 ### List of endpoints
 
 - GET (params: first_name, last_name, position, order_by), POST /employees
-- PUT, DELETE /employees/:uuid
+- GET, PUT, DELETE /employees/:uuid
 - GET /employees/:uuid/subordinates
 - GET (params: name, order_by) /departments
 - GET /departments/:uuid
