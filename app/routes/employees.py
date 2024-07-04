@@ -53,6 +53,12 @@ async def create_employee():
     return jsonify(new_employee.get_json()), 201
 
 
+@employees_blueprint.get("/<uuid>")
+async def get_employee(uuid):
+    employee = Employee.nodes.get(uuid=uuid)
+    return jsonify(employee.get_json())
+
+
 @employees_blueprint.put("/<uuid>")
 async def update_employee(uuid):
     employee = Employee.nodes.get(uuid=uuid)
