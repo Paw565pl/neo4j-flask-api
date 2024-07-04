@@ -13,7 +13,7 @@ docker compose up --build
 If you want to seed the database with sample data you can also run this command.
 
 ```sh
-docker exec neo4j-flask-api-flask-1 flask --app app.app seed_db
+docker compose exec flask flask --app app.app seed_db
 ```
 
 ### List of endpoints
