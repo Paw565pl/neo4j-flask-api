@@ -2,13 +2,11 @@ from flask import jsonify, request, Blueprint
 from neomodel import db
 
 from app.models import Department, Employee
-from app.utils.handle_exception import handle_exception
 
 employees_blueprint = Blueprint("employees", __name__)
 
 
 @employees_blueprint.get("/")
-@handle_exception
 async def get_employees():
     first_name = request.args.get("first_name", "")
     last_name = request.args.get("last_name", "")
@@ -31,10 +29,9 @@ async def get_employees():
 
 
 @employees_blueprint.post("/")
-@handle_exception
 async def create_employee():
     body = request.get_json()
-    properties = await _validate_request_body(body)
+    properties = _validate_request_body(body)
 
     with db.transaction:
         new_employee = Employee()
@@ -54,10 +51,9 @@ async def create_employee():
 
 
 @employees_blueprint.put("/<uuid>")
-@handle_exception
 async def update_employee(uuid):
     body = request.get_json()
-    properties = await _validate_request_body(body)
+    properties = _validate_request_body(body)
 
     with db.transaction:
         employee = Employee.nodes.get(uuid=uuid)
@@ -80,7 +76,6 @@ async def update_employee(uuid):
 
 
 @employees_blueprint.delete("/<uuid>")
-@handle_exception
 async def delete_employee(uuid):
     employee = Employee.nodes.get(uuid=uuid)
 
@@ -99,7 +94,6 @@ async def delete_employee(uuid):
 
 
 @employees_blueprint.get("/<uuid>/subordinates")
-@handle_exception
 async def get_employee_subordinates(uuid):
     manager = Employee.nodes.get(uuid=uuid)
     subordinates = manager.manages.all()
@@ -108,7 +102,7 @@ async def get_employee_subordinates(uuid):
     return jsonify(data)
 
 
-async def _validate_request_body(body):
+def _validate_request_body(body):
     required_fields = [
         "first_name",
         "last_name",
