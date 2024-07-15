@@ -16,6 +16,8 @@ If you want to seed the database with sample data you can also run this command.
 docker compose exec flask flask --app app.app seed_db
 ```
 
+That's all! Now simply hit [http://localhost:5000](http://localhost:5000) and enjoy using the app.
+
 ### List of endpoints
 
 - GET (params: first_name, last_name, position, order_by), POST /employees
